@@ -10,6 +10,9 @@ The MVP receives API documentation by URL or PDF attachment, processes it asynch
 - PostgreSQL as the primary database
 - Redis and Sidekiq for asynchronous processing
 - Active Storage prepared for PDF uploads
+- Secure URL fetching with timeout and private-address protection
+- PDF text extraction with `pdf-reader`
+- Optional OpenAI Responses API integration for generated technical studies
 - RSpec for tests
 - RuboCop and Brakeman for quality and security checks
 - Docker and Docker Compose for local services
@@ -31,7 +34,14 @@ Initial agents:
 ## Setup
 
 ```bash
+DATABASE_HOST=localhost \
+DATABASE_USERNAME=postgres \
+DATABASE_PASSWORD=postgres \
 bundle install
+
+DATABASE_HOST=localhost \
+DATABASE_USERNAME=postgres \
+DATABASE_PASSWORD=postgres \
 bin/rails db:create db:migrate
 ```
 
@@ -44,15 +54,33 @@ docker compose up --build
 Run Sidekiq locally:
 
 ```bash
+DATABASE_HOST=localhost \
+DATABASE_USERNAME=postgres \
+DATABASE_PASSWORD=postgres \
+REDIS_URL=redis://localhost:6379/0 \
 bundle exec sidekiq
 ```
+
+Optional AI configuration:
+
+```bash
+OPENAI_API_KEY=your_api_key
+OPENAI_MODEL=gpt-4o-mini
+```
+
+When `OPENAI_API_KEY` is not configured, the technical study agent uses a local fallback template so the MVP remains runnable without external AI credentials.
 
 ## Tests and Checks
 
 ```bash
+RAILS_ENV=test \
+DATABASE_HOST=localhost \
+DATABASE_USERNAME=postgres \
+DATABASE_PASSWORD=postgres \
 bundle exec rspec
-bin/rubocop
-bin/brakeman --no-pager
+
+bundle exec rubocop
+bundle exec brakeman --no-pager
 ```
 
 ## API Endpoints
@@ -86,8 +114,7 @@ GET /api/api_documents/:id/technical_study
 
 ## Roadmap
 
-- Add PDF text extraction.
-- Integrate OpenAI API in the agent pipeline.
 - Improve endpoint extraction with structured LLM output.
+- Add structured OpenAPI/Swagger parsing before LLM fallback.
 - Add authentication and rate limiting for public usage.
 - Expand request, service, and job coverage.

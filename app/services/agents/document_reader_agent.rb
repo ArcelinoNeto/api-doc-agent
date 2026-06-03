@@ -1,5 +1,3 @@
-require "net/http"
-
 module Agents
   class DocumentReaderAgent < BaseAgent
     private
@@ -21,16 +19,11 @@ module Agents
     end
 
     def fetch_url_content
-      uri = URI.parse(api_document.source_url)
-      response = Net::HTTP.get_response(uri)
-      raise AgentError, "Could not read URL: HTTP #{response.code}" unless response.is_a?(Net::HTTPSuccess)
-
-      response.body.to_s
+      ApiDocs::UrlContentFetcher.call(api_document.source_url)
     end
 
     def pdf_placeholder_content
-      attachment = api_document.pdf_file
-      "PDF attached: #{attachment.filename} (#{attachment.byte_size} bytes). PDF text extraction will be implemented next."
+      ApiDocs::PdfTextExtractor.call(api_document.pdf_file)
     end
 
     def normalize(content)
@@ -40,7 +33,8 @@ module Agents
     def reader_metadata
       {
         "read_at" => Time.current.iso8601,
-        "pdf_attached" => api_document.pdf_file.attached?
+        "pdf_attached" => api_document.pdf_file.attached?,
+        "reader" => "document_reader_agent"
       }
     end
   end

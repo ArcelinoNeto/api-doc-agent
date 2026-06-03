@@ -13,4 +13,18 @@ RSpec.describe ApiDocument, type: :model do
 
     expect(document).to be_valid
   end
+
+  it "rejects unsupported URL schemes" do
+    document = described_class.new(title: "Payments", source_type: :url, source_url: "ftp://example.com/docs")
+
+    expect(document).not_to be_valid
+    expect(document.errors[:source_url]).to include("must be a valid HTTP or HTTPS URL")
+  end
+
+  it "requires a PDF attachment when source type is pdf" do
+    document = described_class.new(title: "Payments", source_type: :pdf)
+
+    expect(document).not_to be_valid
+    expect(document.errors[:pdf_file]).to be_present
+  end
 end

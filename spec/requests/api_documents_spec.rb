@@ -16,6 +16,19 @@ RSpec.describe "API documents", type: :request do
       expect(response).to have_http_status(:created)
       expect(response.parsed_body).to include("title" => "Payments", "status" => "pending")
     end
+
+    it "returns validation errors for invalid URLs" do
+      post "/api/api_documents", params: {
+        api_document: {
+          title: "Payments",
+          source_type: "url",
+          source_url: "ftp://example.com/docs"
+        }
+      }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.parsed_body.fetch("errors")).to have_key("source_url")
+    end
   end
 
   describe "GET /api/api_documents/:id/status" do
@@ -25,7 +38,7 @@ RSpec.describe "API documents", type: :request do
       get "/api/api_documents/#{document.id}/status"
 
       expect(response).to have_http_status(:ok)
-      expect(response.parsed_body).to include("id" => document.id, "status" => "pending")
+      expect(response.parsed_body).to include("id" => document.id, "status" => "pending", "failure_reason" => nil)
     end
   end
 
