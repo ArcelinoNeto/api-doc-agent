@@ -6,7 +6,7 @@ gem "rails", "~> 8.0.5"
 gem "pg", "~> 1.1"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
-gem "connection_pool", "~> 2.5"
+gem "connection_pool", "~> 3.0"
 gem "pdf-reader", "~> 2.15"
 gem "sidekiq", "~> 7.3"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
